@@ -11,7 +11,7 @@ body {
   color: var(--color-primary);
   font-family: "Montserrat", sans-serif;
   font-size: 1.2rem;
-  padding-top: 15%;
+  padding-top: 5%;
   gap: 1rem;
 }
 
@@ -84,4 +84,15 @@ button:hover {
 
 button:active {
   border-color: var(--color-primary);
+}
+
+.graph {
+  width: 70%;
+  margin-top: 3rem;
+}
+
+#chart {
+  display: none;
+  background-color: white;
+  width: 100%;
 }

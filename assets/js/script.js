@@ -1,15 +1,18 @@
+const chartCanvas = document.getElementById("chart")
 const clpAmountInput = document.getElementById("clp-amount")
 const mainForm = document.querySelector(".main-form")
+const resultText = document.getElementById("result")
 const searchButton = document.getElementById("search-button")
 const searchSelect = document.getElementById("search-select")
-const resultText = document.getElementById("result")
 
 const currencies = [
-  { quote: "clp", base: "dolar", symbol: "$", decimals: 2 },
-  { quote: "clp", base: "euro", symbol: "€", decimals: 2 },
-  { quote: "dolar", base: "bitcoin", symbol: "₿", decimals: 8 },
-  { quote: "dolar", base: "libra_cobre", suffixSymbol: "lbs.", decimals: 1 },
+  { quote: "clp", base: "dolar", symbol: "$", decimals: 2, asset: "USD" },
+  { quote: "clp", base: "euro", symbol: "€", decimals: 2, asset: "EUR" },
+  { quote: "dolar", base: "bitcoin", symbol: "₿", decimals: 8, asset: "BTC" },
+  { quote: "dolar", base: "libra_cobre", suffixSymbol: "lbs.", decimals: 1, asset: "Cobre" },
 ]
+
+let chart
 
 const getCurrencySequence = (base) => {
   /* Gets the sequence of conversions if not direct conversion available
@@ -37,18 +40,54 @@ const convertCurrency = async () => {
   // Define sequence of conversions needed
   const base = searchSelect.value
   const conversions = getCurrencySequence(base)
-  const { symbol = "", suffixSymbol = "", decimals } = conversions[conversions.length - 1]
+  const assetData = conversions[conversions.length - 1]
   // Fetch data
   const data = await Promise.all(conversions.map(({ base }) => getHistoricData(base)))
   if (data[0].error) return data[0] // Forwards the error
   // Process data
+  const dates = []
   const rates = []
   for (let i = 0; i < data[0].serie.length; i++) {
-    const date = data.map((el) => el.serie[i].fecha)[0]
-    const rate = data.map((el) => el.serie[i].valor).reduce((acc, el) => acc * el, 1)
-    rates.push({ date, rate })
+    dates.push(data.map((el) => el.serie[i].fecha)[0])
+    rates.push(data.map((el) => el.serie[i].valor).reduce((acc, el) => acc * el, 1))
   }
-  return { rates, symbol, suffixSymbol, decimals }
+  return { dates, rates, ...assetData }
+}
+
+const renderGraph = ({ dates, rates, asset }) => {
+  const config = {
+    type: "line",
+    data: {
+      labels: dates.map((d) => d.split("T")[0]),
+      datasets: [
+        {
+          label: `Precio ${asset}`,
+          borderColor: "rgb(4, 173, 220)",
+          data: rates,
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.dataset.label}: ${context.parsed.y.toLocaleString()} CLP`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          title: {
+            text: "CLP",
+            display: true,
+          },
+        },
+      },
+    },
+  }
+  if (chart) chart.destroy()
+  chart = new Chart(chartCanvas, config)
+  chartCanvas.style.display = "block"
 }
 
 const performSearch = async () => {
@@ -66,12 +105,13 @@ const performSearch = async () => {
   } else {
     const { rates, symbol, suffixSymbol, decimals } = conversion
     const clpAmount = Number(clpAmountInput.value)
-    const rate = rates[0].rate // Use [0] for the first retrieved item (today)
-    const convertedAmount = (clpAmount / rate).toLocaleString(undefined, {
+    // Use rates[0] for the first retrieved item => today
+    const convertedAmount = (clpAmount / rates[0]).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
     resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
-      ${symbol} ${convertedAmount} ${suffixSymbol}`
+      ${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`
+    renderGraph(conversion)
   }
 }
 
