@@ -19,16 +19,23 @@
     <main>
       <form class="main-form flex">
         <label for="clp-amount" class="title">Pesos CLP</label>
-        <input type="number" name="clp-amount" id="clp-amount" class="input" placeholder="Ingrese el monto en CLP" />
-        <label for="search-button">Moneda a convertir:</label>
-        <select name="search-button" id="search-button" class="input" required>
+        <input
+          type="number"
+          name="clp-amount"
+          id="clp-amount"
+          class="input"
+          placeholder="Ingrese el monto en CLP"
+          required
+        />
+        <label for="search-select">Moneda a convertir:</label>
+        <select name="search-select" id="search-select" class="input" required>
           <option value="" disabled selected>Seleccione una opción</option>
-          <option value="usd">Dólar Americano (USD)</option>
-          <option value="eur">Euro (EUR)</option>
-          <option value="btc">Bitcoin (BTC)</option>
-          <option value="cobre">Cobre</option>
+          <option value="dolar">Dólar Americano (USD)</option>
+          <option value="euro">Euro (EUR)</option>
+          <option value="bitcoin">Bitcoin (BTC)</option>
+          <option value="libra_cobre">Libra de Cobre</option>
         </select>
-        <button type="button" id="btn-buscar">Buscar</button>
+        <button type="button" id="search-button">Buscar</button>
         <p id="result">···</p>
       </form>
     </main>
