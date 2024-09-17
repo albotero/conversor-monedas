@@ -68,7 +68,7 @@ const performSearch = async () => {
     const convertedAmount = (clpAmount / rate).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
-    resultText.innerHTML = `<strong style="color: #050">Resultado:</strong> ${symbol} ${convertedAmount} ${suffixSymbol}`
+    resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong> ${symbol} ${convertedAmount} ${suffixSymbol}`
   }
 }
 
