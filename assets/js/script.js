@@ -51,6 +51,9 @@ const convertCurrency = async () => {
     dates.push(data.map((el) => el.serie[i].fecha)[0])
     rates.push(data.map((el) => el.serie[i].valor).reduce((acc, el) => acc * el, 1))
   }
+  // Only use last 10 days
+  dates.splice(10)
+  rates.splice(10)
   return { dates, rates, ...assetData }
 }
 
