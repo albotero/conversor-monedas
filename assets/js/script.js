@@ -54,7 +54,7 @@ const convertCurrency = async () => {
 const performSearch = async () => {
   // Check if form is valid
   if (!mainForm.checkValidity()) {
-    alert("ERROR\nDebe ingresar todos los datos para realizar el cálculo")
+    resultText.innerHTML = `<strong style="color: #a00">Error:</strong> Debe ingresar todos los datos para realizar el cálculo`
     return
   }
   // Get values
@@ -68,7 +68,7 @@ const performSearch = async () => {
     const convertedAmount = (clpAmount / rate).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
-    resultText.innerHTML = `Resultado: ${symbol} ${convertedAmount} ${suffixSymbol}`
+    resultText.innerHTML = `<strong style="color: #050">Resultado:</strong> ${symbol} ${convertedAmount} ${suffixSymbol}`
   }
 }
 
