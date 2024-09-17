@@ -11,7 +11,8 @@ body {
   color: var(--color-primary);
   font-family: "Montserrat", sans-serif;
   font-size: 1.2rem;
-  padding-top: 5%;
+  padding-top: 5rem;
+  height: 90vh;
   gap: 1rem;
 }
 
@@ -87,12 +88,12 @@ button:active {
 }
 
 .graph {
-  width: 70%;
+  flex-grow: 1;
   margin-top: 3rem;
 }
 
 #chart {
   display: none;
   background-color: white;
-  width: 100%;
+  height: 100%;
 }
