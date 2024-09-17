@@ -27,7 +27,7 @@ const getHistoricData = async (base) => {
   try {
     const res = await fetch(`https://165.227.94.139/api/${base}`, { method: "GET" })
     if (res.ok) return await res.json()
-    else return { error: `${res.status} - ${res.statusText}` }
+    return { error: `${res.status} - ${res.statusText}` }
   } catch (error) {
     return { error: error.message }
   }
@@ -54,13 +54,15 @@ const convertCurrency = async () => {
 const performSearch = async () => {
   // Check if form is valid
   if (!mainForm.checkValidity()) {
-    resultText.innerHTML = `<strong style="color: #a00">Error:</strong> Debe ingresar todos los datos para realizar el cálculo`
+    resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
+      Debe ingresar todos los datos para realizar el cálculo`
     return
   }
   // Get values
   const conversion = await convertCurrency()
   if (conversion.error) {
-    resultText.innerHTML = `<strong style="color: #a00">Error:</strong> ${conversion.error}`
+    resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
+      ${conversion.error}`
   } else {
     const { rates, symbol, suffixSymbol, decimals } = conversion
     const clpAmount = Number(clpAmountInput.value)
@@ -68,7 +70,8 @@ const performSearch = async () => {
     const convertedAmount = (clpAmount / rate).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
-    resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong> ${symbol} ${convertedAmount} ${suffixSymbol}`
+    resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
+      ${symbol} ${convertedAmount} ${suffixSymbol}`
   }
 }
 
