@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversor de Monedas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <script src="./assets/js/script.js" type="module" defer></script>
+  </head>
+  <body class="flex">
+    <h1 class="title">Conversor de Monedas Nacional</h1>
+    <hr />
+    <main>
+      <form class="main-form flex">
+        <label for="clp-amount" class="title">Pesos CLP</label>
+        <input type="number" name="clp-amount" id="clp-amount" class="input" placeholder="Ingrese el monto en CLP" />
+        <label for="search-button">Moneda a convertir:</label>
+        <select name="search-button" id="search-button" class="input" required>
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="usd">Dólar Americano (USD)</option>
+          <option value="eur">Euro (EUR)</option>
+          <option value="btc">Bitcoin (BTC)</option>
+          <option value="cobre">Cobre</option>
+        </select>
+        <button type="button" id="btn-buscar">Buscar</button>
+        <p id="result">···</p>
+      </form>
+    </main>
+  </body>
+</html>
