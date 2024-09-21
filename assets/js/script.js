@@ -1,18 +1,14 @@
-const chartCanvas = document.getElementById("chart")
-const clpAmountInput = document.getElementById("clp-amount")
-const mainForm = document.querySelector(".main-form")
-const resultText = document.getElementById("result")
-const searchButton = document.getElementById("search-button")
-const searchSelect = document.getElementById("search-select")
+import { currencies } from "./currencies.js"
 
-const currencies = [
-  { quote: "clp", base: "dolar", symbol: "$", decimals: 2, asset: "USD" },
-  { quote: "clp", base: "euro", symbol: "€", decimals: 2, asset: "EUR" },
-  { quote: "dolar", base: "bitcoin", symbol: "₿", decimals: 8, asset: "BTC" },
-  { quote: "dolar", base: "libra_cobre", suffixSymbol: "lbs.", decimals: 1, asset: "Cobre" },
-]
-
-let chart
+// DOM Elements to be used by script
+const DOM = {
+  chart: document.getElementById("chart"),
+  clpInput: document.getElementById("clp-amount"),
+  mainForm: document.querySelector(".main-form"),
+  resultText: document.getElementById("result"),
+  searchButton: document.getElementById("search-button"),
+  searchSelect: document.getElementById("search-select"),
+}
 
 const getCurrencySequence = (base) => {
   /* Gets the sequence of conversions if not direct conversion available
@@ -38,7 +34,7 @@ const getHistoricData = async (base) => {
 
 const convertCurrency = async () => {
   // Define sequence of conversions needed
-  const base = searchSelect.value
+  const base = DOM.searchSelect.value
   const conversions = getCurrencySequence(base)
   const assetData = conversions[conversions.length - 1]
   // Fetch data
@@ -57,7 +53,19 @@ const convertCurrency = async () => {
   return { dates, rates, ...assetData }
 }
 
-const renderGraph = ({ dates, rates, asset }) => {
+// Modify DOM
+
+DOM.searchSelect.innerHTML = `<option value="" disabled selected>Seleccione una opción</option>`
+currencies.forEach(({ base, text }) => {
+  const option = document.createElement("option")
+  option.value = base
+  option.innerText = text
+  DOM.searchSelect.appendChild(option)
+})
+
+let chart
+
+const renderGraph = ({ dates, rates, asset, color }) => {
   const config = {
     type: "line",
     data: {
@@ -65,7 +73,7 @@ const renderGraph = ({ dates, rates, asset }) => {
       datasets: [
         {
           label: `Precio ${asset}`,
-          borderColor: "rgb(4, 173, 220)",
+          borderColor: `#${color}`,
           data: rates,
         },
       ],
@@ -89,33 +97,33 @@ const renderGraph = ({ dates, rates, asset }) => {
     },
   }
   if (chart) chart.destroy()
-  chart = new Chart(chartCanvas, config)
-  chartCanvas.style.display = "block"
+  chart = new Chart(DOM.chart, config)
+  DOM.chart.style.display = "block"
 }
 
 const performSearch = async () => {
   // Check if form is valid
-  if (!mainForm.checkValidity()) {
-    resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
+  if (!DOM.mainForm.checkValidity()) {
+    DOM.resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
       Debe ingresar todos los datos para realizar el cálculo`
     return
   }
   // Get values
   const conversion = await convertCurrency()
   if (conversion.error) {
-    resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
+    DOM.resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
       ${conversion.error}`
   } else {
     const { rates, symbol, suffixSymbol, decimals } = conversion
-    const clpAmount = Number(clpAmountInput.value)
+    const clpAmount = Number(DOM.clpInput.value)
     // Use rates[0] for the first retrieved item => today
     const convertedAmount = (clpAmount / rates[0]).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
-    resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
+    DOM.resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
       ${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`
     renderGraph(conversion)
   }
 }
 
-searchButton.addEventListener("click", performSearch)
+DOM.searchButton.addEventListener("click", performSearch)
