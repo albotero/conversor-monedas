@@ -11,12 +11,13 @@ const DOM = {
 }
 
 const getCurrencySequence = (base) => {
-  /* Gets the sequence of conversions if not direct conversion available
-    (convert first to USD and then to base)*/
+  /* Get the sequence of conversions
+    - If direct conversion is available: CLP -> Base
+    - If direct conversion is not available: CLP -> USD -> Base */
   const sequence = []
-  // Add base element
+  // Find element for base
   sequence.push(currencies.find((el) => el.base === base))
-  // If not direct conversion, add CLP to USD
+  // If no direct conversion, add CLP to USD at the start of the sequence
   if (sequence[0].quote !== "clp") sequence.unshift(currencies[0])
   // Return sequence
   return sequence
@@ -24,57 +25,53 @@ const getCurrencySequence = (base) => {
 
 const getHistoricData = async (base) => {
   try {
-    const res = await fetch(`https://165.227.94.139/api/${base}`, { method: "GET" })
+    const res = await fetch(`https://mindicador.cl/api/${base}`, { method: "GET" })
+    // If successful
     if (res.ok) return await res.json()
+    // If an error code is returned from server
     return { error: `${res.status} - ${res.statusText}` }
   } catch (error) {
+    // If an error ocurred within the script
     return { error: error.message }
   }
 }
 
 const convertCurrency = async () => {
   // Define sequence of conversions needed
-  const base = DOM.searchSelect.value
-  const conversions = getCurrencySequence(base)
-  const assetData = conversions[conversions.length - 1]
-  // Fetch data
+  const conversions = getCurrencySequence(DOM.searchSelect.value)
+  // Fetch data for each conversion step
   const data = await Promise.all(conversions.map(({ base }) => getHistoricData(base)))
   if (data[0].error) return data[0] // Forwards the error
-  // Process data
-  const dates = []
-  const rates = []
-  for (let i = 0; i < data[0].serie.length; i++) {
-    dates.push(data.map((el) => el.serie[i].fecha)[0])
-    rates.push(data.map((el) => el.serie[i].valor).reduce((acc, el) => acc * el, 1))
+  // Process data from last 10 days
+  const historic = Array(10)
+    .fill()
+    .map((_, i) => ({
+      x: data[0].serie[i].fecha.split("T")[0], // Get dates from first step
+      y: data.reduce((acc, el) => acc * el.serie[i].valor, 1), // Multiply rates for all steps
+    }))
+  return {
+    historic, // Last 10 days
+    todayRate: historic[0].y, // Rate for today
+    ...conversions.at(-1), // The rest of the last step currency object data
   }
-  // Only use last 10 days
-  dates.splice(10)
-  rates.splice(10)
-  return { dates, rates, ...assetData }
 }
 
 // Modify DOM
 
 DOM.searchSelect.innerHTML = `<option value="" disabled selected>Seleccione una opción</option>`
-currencies.forEach(({ base, text }) => {
-  const option = document.createElement("option")
-  option.value = base
-  option.innerText = text
-  DOM.searchSelect.appendChild(option)
-})
+currencies.forEach(({ base, text }) => (DOM.searchSelect.innerHTML += `<option value="${base}">${text}</option>`))
 
 let chart
 
-const renderGraph = ({ dates, rates, asset, color }) => {
+const renderGraph = ({ historic, asset, color }) => {
   const config = {
     type: "line",
     data: {
-      labels: dates.map((d) => d.split("T")[0]),
       datasets: [
         {
           label: `Precio ${asset}`,
           borderColor: `#${color}`,
-          data: rates,
+          data: historic,
         },
       ],
     },
@@ -82,17 +79,13 @@ const renderGraph = ({ dates, rates, asset, color }) => {
       plugins: {
         tooltip: {
           callbacks: {
-            label: (context) => `${context.dataset.label}: ${context.parsed.y.toLocaleString()} CLP`,
+            label: (context) => `${context.dataset.label}: ${Math.round(context.parsed.y).toLocaleString()} CLP`,
           },
         },
       },
       scales: {
-        y: {
-          title: {
-            text: "CLP",
-            display: true,
-          },
-        },
+        x: { title: { text: "Fecha", display: true } },
+        y: { title: { text: "Valor (CLP)", display: true } },
       },
     },
   }
@@ -114,10 +107,9 @@ const performSearch = async () => {
     DOM.resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
       ${conversion.error}`
   } else {
-    const { rates, symbol, suffixSymbol, decimals } = conversion
+    const { todayRate, symbol, suffixSymbol, decimals } = conversion
     const clpAmount = Number(DOM.clpInput.value)
-    // Use rates[0] for the first retrieved item => today
-    const convertedAmount = (clpAmount / rates[0]).toLocaleString(undefined, {
+    const convertedAmount = (clpAmount / todayRate).toLocaleString(undefined, {
       maximumFractionDigits: decimals,
     })
     DOM.resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
