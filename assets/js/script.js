@@ -14,9 +14,7 @@ const getCurrencySequence = (base) => {
   /* Get the sequence of conversions
     - If direct conversion is available: CLP -> Base
     - If direct conversion is not available: CLP -> USD -> Base */
-  const sequence = []
-  // Find element for base
-  sequence.push(currencies.find((el) => el.base === base))
+  const sequence = [currencies.find((el) => el.base === base)]
   // If no direct conversion, add CLP to USD at the start of the sequence
   if (sequence[0].quote !== "clp") sequence.unshift(currencies[0])
   // Return sequence
