@@ -3,11 +3,10 @@ import { currencies } from "./currencies.js"
 // DOM Elements to be used by script
 const DOM = {
   chart: document.getElementById("chart"),
-  clpInput: document.getElementById("clp-amount"),
   mainForm: document.querySelector(".main-form"),
   resultText: document.getElementById("result"),
-  searchButton: document.getElementById("search-button"),
   searchSelect: document.getElementById("search-select"),
+  create: (tag, props) => Object.assign(document.createElement(tag), props),
 }
 
 const getCurrencySequence = (base) => {
@@ -21,7 +20,7 @@ const getCurrencySequence = (base) => {
   return sequence
 }
 
-const getHistoricData = async (base) => {
+const getHistoricData = async ({ base }) => {
   try {
     const res = await fetch(`https://mindicador.cl/api/${base}`, { method: "GET" })
     // If successful
@@ -29,17 +28,19 @@ const getHistoricData = async (base) => {
     // If an error code is returned from server
     return { error: `${res.status} - ${res.statusText}` }
   } catch (error) {
-    // If an error ocurred within the script
+    // If an error occurred within the script
     return { error: error.message }
   }
 }
 
-const convertCurrency = async () => {
+const convertCurrency = async (base) => {
   // Define sequence of conversions needed
-  const conversions = getCurrencySequence(DOM.searchSelect.value)
+  const conversions = getCurrencySequence(base)
   // Fetch data for each conversion step
-  const data = await Promise.all(conversions.map(({ base }) => getHistoricData(base)))
-  if (data[0].error) return data[0] // Forwards the error
+  const data = await Promise.all(conversions.map(getHistoricData))
+  // Check for an error and forwards it if occurred
+  const err = data.find(({ error }) => error)
+  if (err) return err
   // Process data from last 10 days
   const historic = Array(10)
     .fill()
@@ -56,8 +57,19 @@ const convertCurrency = async () => {
 
 // Modify DOM
 
-DOM.searchSelect.innerHTML = `<option value="" disabled selected>Seleccione una opción</option>`
-currencies.forEach(({ base, text }) => (DOM.searchSelect.innerHTML += `<option value="${base}">${text}</option>`))
+const populateSelect = () =>
+  DOM.searchSelect.append(
+    ...currencies.map(({ base, text }) => DOM.create("option", { value: base, textContent: text }))
+  )
+
+const renderResult = ({ title, content }) =>
+  DOM.resultText.replaceChildren(
+    DOM.create("span", {
+      className: title === "Error" ? "failure" : "success",
+      textContent: `${title}: `,
+    }),
+    content
+  )
 
 let chart
 
@@ -92,28 +104,22 @@ const renderGraph = ({ historic, asset, color }) => {
   DOM.chart.style.display = "block"
 }
 
-const performSearch = async () => {
-  // Check if form is valid
-  if (!DOM.mainForm.checkValidity()) {
-    DOM.resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
-      Debe ingresar todos los datos para realizar el cálculo`
+const performSearch = async (e) => {
+  e.preventDefault()
+  // Get values
+  const { clpAmount, base } = Object.fromEntries(new FormData(e.target))
+  const conversion = await convertCurrency(base)
+  if (conversion.error) {
+    renderResult({ title: "Error", content: conversion.error })
     return
   }
-  // Get values
-  const conversion = await convertCurrency()
-  if (conversion.error) {
-    DOM.resultText.innerHTML = `<strong style="color: #a00">Error:</strong>
-      ${conversion.error}`
-  } else {
-    const { todayRate, symbol, suffixSymbol, decimals } = conversion
-    const clpAmount = Number(DOM.clpInput.value)
-    const convertedAmount = (clpAmount / todayRate).toLocaleString(undefined, {
-      maximumFractionDigits: decimals,
-    })
-    DOM.resultText.innerHTML = `<strong style="color: #0f6700">Resultado:</strong>
-      ${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`
-    renderGraph(conversion)
-  }
+  const { todayRate, symbol, suffixSymbol, decimals } = conversion
+  const convertedAmount = (Number(clpAmount) / todayRate).toLocaleString(undefined, {
+    maximumFractionDigits: decimals,
+  })
+  renderResult({ title: "Resultado", content: `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}` })
+  renderGraph(conversion)
 }
 
-DOM.searchButton.addEventListener("click", performSearch)
+DOM.mainForm.addEventListener("submit", performSearch)
+document.addEventListener("DOMContentLoaded", populateSelect)

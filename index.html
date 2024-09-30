@@ -22,15 +22,17 @@
         <label for="clp-amount" class="title">Pesos CLP</label>
         <input
           type="number"
-          name="clp-amount"
+          name="clpAmount"
           id="clp-amount"
           class="input"
           placeholder="Ingrese el monto en CLP"
           required
         />
         <label for="search-select">Moneda a convertir:</label>
-        <select name="search-select" id="search-select" class="input" required></select>
-        <button type="button" id="search-button">Buscar</button>
+        <select name="base" id="search-select" class="input" required>
+          <option value="" disabled selected>Seleccione una opción</option>
+        </select>
+        <button type="submit" id="search-button">Buscar</button>
         <p id="result">···</p>
       </form>
     </main>

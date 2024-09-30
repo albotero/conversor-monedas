@@ -97,3 +97,15 @@ button:active {
   background-color: white;
   height: 100%;
 }
+
+#result span {
+  font-weight: bold;
+}
+
+#result span.success {
+  color: #0f6700;
+}
+
+#result span.failure {
+  color: #a00;
+}
