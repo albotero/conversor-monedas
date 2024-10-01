@@ -7,7 +7,6 @@ export const currencies = [
     decimals: 2,
     asset: "USD",
     text: "Dólar americano (USD)",
-    color: "11d6f1",
   },
   {
     quote: "clp",
@@ -16,7 +15,6 @@ export const currencies = [
     decimals: 2,
     asset: "USD",
     text: "Dólar acuerdo (USD)",
-    color: "f74a99",
   },
   {
     quote: "clp",
@@ -25,7 +23,6 @@ export const currencies = [
     decimals: 2,
     asset: "EUR",
     text: "Euro (EUR)",
-    color: "f18f11",
   },
   {
     quote: "dolar",
@@ -34,7 +31,6 @@ export const currencies = [
     decimals: 8,
     asset: "BTC",
     text: "Bitcoin (BTC)",
-    color: "9e04dc",
   },
   {
     quote: "dolar",
@@ -43,6 +39,29 @@ export const currencies = [
     decimals: 1,
     asset: "Cobre",
     text: "Libra de Cobre",
-    color: "08c80b",
+  },
+  {
+    quote: "clp",
+    base: "uf",
+    symbol: "$",
+    decimals: 2,
+    asset: "UF",
+    text: "Unidad de fomento (UF)",
+  },
+  {
+    quote: "clp",
+    base: "ivp",
+    symbol: "$",
+    decimals: 2,
+    asset: "IVP",
+    text: "Indice de valor promedio (IVP)",
+  },
+  {
+    quote: "clp",
+    base: "utm",
+    symbol: "$",
+    decimals: 0,
+    asset: "UTM",
+    text: "Unidad Tributaria Mensual (UTM)",
   },
 ]

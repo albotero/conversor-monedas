@@ -74,14 +74,16 @@ const renderResult = ({ title, content }) =>
 
 let chart
 
-const renderGraph = ({ historic, asset, color }) => {
+const randomColor = () => `hsl(${Math.random() * 360}, 100%, 40%)`
+
+const renderGraph = ({ historic, asset }) => {
   const config = {
     type: "line",
     data: {
       datasets: [
         {
           label: `Precio ${asset}`,
-          borderColor: `#${color}`,
+          borderColor: randomColor(),
           data: historic,
         },
       ],
