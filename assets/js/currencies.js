@@ -43,7 +43,7 @@ export const currencies = [
   {
     quote: "clp",
     base: "uf",
-    symbol: "$",
+    suffixSymbol: "UF",
     decimals: 2,
     asset: "UF",
     text: "Unidad de fomento (UF)",
@@ -51,7 +51,7 @@ export const currencies = [
   {
     quote: "clp",
     base: "ivp",
-    symbol: "$",
+    suffixSymbol: "IVP",
     decimals: 2,
     asset: "IVP",
     text: "Indice de valor promedio (IVP)",
@@ -59,8 +59,8 @@ export const currencies = [
   {
     quote: "clp",
     base: "utm",
-    symbol: "$",
-    decimals: 0,
+    suffixSymbol: "UTM",
+    decimals: 2,
     asset: "UTM",
     text: "Unidad Tributaria Mensual (UTM)",
   },
