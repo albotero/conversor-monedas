@@ -10,14 +10,6 @@ export const currencies = [
   },
   {
     quote: "clp",
-    base: "dolar_intercambio",
-    symbol: "$",
-    decimals: 2,
-    asset: "USD",
-    text: "Dólar acuerdo (USD)",
-  },
-  {
-    quote: "clp",
     base: "euro",
     symbol: "€",
     decimals: 2,

@@ -48,7 +48,7 @@ const convertCurrency = async (base) => {
       x: data[0].serie[i].fecha.split("T")[0], // Get dates from first step
       y: data.reduce((acc, el) => acc * el.serie[i].valor, 1), // Multiply rates for all steps
     }))
-  historic.reverse()
+    .reverse()
   return {
     historic, // Last 10 days
     todayRate: historic.at(-1).y, // Rate for today
