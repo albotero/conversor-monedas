@@ -25,11 +25,19 @@ const getHistoricData = async ({ base }) => {
     const res = await fetch(`https://mindicador.cl/api/${base}`, { method: "GET" })
     // If successful
     if (res.ok) return await res.json()
-    // If an error code is returned from server
-    return { error: `${res.status} - ${res.statusText}` }
+    // If an error is returned from server
+    const message = {
+      400: "Solicitud no exitosa",
+      403: "Sin autorización para consultar",
+      404: "No se encontró el servidor",
+      500: "El servidor no pudo procesar la solicitud",
+    }
+    throw {
+      name: `Error ${res.status}`,
+      message: message[res.status] || res.statusText,
+    }
   } catch (error) {
-    // If an error occurred within the script
-    return { error: error.message }
+    return { error }
   }
 }
 
@@ -66,7 +74,7 @@ const populateSelect = () =>
 const renderResult = ({ title, content }) =>
   DOM.resultText.replaceChildren(
     DOM.create("span", {
-      className: title === "Error" ? "failure" : "success",
+      className: title.includes("Error") ? "failure" : "success",
       textContent: `${title}: `,
     }),
     content
@@ -113,7 +121,10 @@ const performSearch = async (e) => {
   const { clpAmount, base } = Object.fromEntries(new FormData(e.target))
   const conversion = await convertCurrency(base)
   if (conversion.error) {
-    renderResult({ title: "Error", content: conversion.error })
+    // Deconstruct and set default values in case either name
+    // or message are undefined in the error Object
+    const { name = "Error", message = "Algo salió mal :(" } = conversion.error
+    renderResult({ title: name, content: message })
     return
   }
   const { todayRate, symbol, suffixSymbol, decimals } = conversion
