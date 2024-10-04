@@ -1,3 +1,4 @@
+import { renderGraph } from "./chart.js"
 import { currencies } from "./currencies.js"
 
 // DOM Elements to be used by script
@@ -66,53 +67,22 @@ const convertCurrency = async (base) => {
 
 // Modify DOM
 
-const populateSelect = () =>
-  DOM.searchSelect.append(
-    ...currencies.map(({ base, text }) => DOM.create("option", { value: base, textContent: text }))
+const populateSelect = () => {
+  const options = currencies.map(({ base, text }) =>
+    DOM.create("option", {
+      value: base,
+      textContent: text,
+    })
   )
+  DOM.searchSelect.append(...options)
+}
 
-const renderResult = ({ title, content }) =>
-  DOM.resultText.replaceChildren(
-    DOM.create("span", {
-      className: title.includes("Error") ? "failure" : "success",
-      textContent: `${title}: `,
-    }),
-    content
-  )
-
-let chart
-
-const randomColor = () => `hsl(${Math.random() * 360}, 100%, 40%)`
-
-const renderGraph = ({ historic, asset }) => {
-  const config = {
-    type: "line",
-    data: {
-      datasets: [
-        {
-          label: `Precio ${asset}`,
-          borderColor: randomColor(),
-          data: historic,
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.dataset.label}: ${Math.round(context.parsed.y).toLocaleString()} CLP`,
-          },
-        },
-      },
-      scales: {
-        x: { title: { text: "Fecha", display: true } },
-        y: { title: { text: "Valor (CLP)", display: true } },
-      },
-    },
-  }
-  if (chart) chart.destroy()
-  chart = new Chart(DOM.chart, config)
-  DOM.chart.style.display = "block"
+const renderResult = ({ title, content }) => {
+  const span = DOM.create("span", {
+    className: title.includes("Error") ? "failure" : "success",
+    textContent: `${title}: `,
+  })
+  DOM.resultText.replaceChildren(span, content)
 }
 
 const performSearch = async (e) => {
@@ -131,8 +101,11 @@ const performSearch = async (e) => {
   const convertedAmount = (Number(clpAmount) / todayRate).toLocaleString(undefined, {
     maximumFractionDigits: decimals,
   })
-  renderResult({ title: "Resultado", content: `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}` })
-  renderGraph(conversion)
+  renderResult({
+    title: "Resultado",
+    content: `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`,
+  })
+  renderGraph(DOM, conversion)
 }
 
 DOM.mainForm.addEventListener("submit", performSearch)
