@@ -77,7 +77,7 @@ const populateSelect = () => {
   DOM.searchSelect.append(...options)
 }
 
-const renderResult = ({ title, content }) => {
+const renderResult = (title, content) => {
   const span = DOM.create("span", {
     className: title.includes("Error") ? "failure" : "success",
     textContent: `${title}: `,
@@ -87,24 +87,24 @@ const renderResult = ({ title, content }) => {
 
 const performSearch = async (e) => {
   e.preventDefault()
-  // Get values
+  // Get current rate
   const { clpAmount, base } = Object.fromEntries(new FormData(e.target))
   const conversion = await convertCurrency(base)
   if (conversion.error) {
     // Deconstruct and set default values in case either name
     // or message are undefined in the error Object
     const { name = "Error", message = "Algo salió mal :(" } = conversion.error
-    renderResult({ title: name, content: message })
+    renderResult(name, message)
     return
   }
+  // Perform conversion
   const { todayRate, symbol, suffixSymbol, decimals } = conversion
   const convertedAmount = (Number(clpAmount) / todayRate).toLocaleString(undefined, {
     maximumFractionDigits: decimals,
   })
-  renderResult({
-    title: "Resultado",
-    content: `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`,
-  })
+  const res = `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`
+  // Update DOM
+  renderResult("Resultado", res)
   renderGraph(DOM.chart, conversion)
 }
 
