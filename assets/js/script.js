@@ -105,7 +105,7 @@ const performSearch = async (e) => {
     title: "Resultado",
     content: `${symbol || ""} ${convertedAmount} ${suffixSymbol || ""}`,
   })
-  renderGraph(DOM, conversion)
+  renderGraph(DOM.chart, conversion)
 }
 
 DOM.mainForm.addEventListener("submit", performSearch)

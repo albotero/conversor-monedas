@@ -29,8 +29,8 @@ const generateGraphConfig = ({ historic, asset }) => ({
 
 let chart
 
-export const renderGraph = (DOM, data) => {
+export const renderGraph = (element, data) => {
   if (chart) chart.destroy()
-  chart = new Chart(DOM.chart, generateGraphConfig(data))
-  DOM.chart.style.display = "block"
+  chart = new Chart(element, generateGraphConfig(data))
+  element.style.display = "block"
 }
