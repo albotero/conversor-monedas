@@ -42,7 +42,7 @@ const getHistoricData = async ({ base }) => {
   }
 }
 
-const convertCurrency = async (base) => {
+const getCurrencyData = async (base) => {
   // Define sequence of conversions needed
   const conversions = getCurrencySequence(base)
   // Fetch data for each conversion step
@@ -89,7 +89,7 @@ const performSearch = async (e) => {
   e.preventDefault()
   // Get current rate
   const { clpAmount, base } = Object.fromEntries(new FormData(e.target))
-  const conversion = await convertCurrency(base)
+  const conversion = await getCurrencyData(base)
   if (conversion.error) {
     // Deconstruct and set default values in case either name
     // or message are undefined in the error Object
